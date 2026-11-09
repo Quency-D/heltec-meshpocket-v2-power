@@ -1,14 +1,8 @@
 #ifndef HELTEC_MESHPOCKET_V2_POWER_TARGET_H
 #define HELTEC_MESHPOCKET_V2_POWER_TARGET_H
 
-// This archive is built for the pinned Mesh Pocket V2 firmware toolchain.
-#if !defined(__GNUC__) || defined(__clang__) || __GNUC__ != 12 || \
-    __GNUC_MINOR__ != 3 || __GNUC_PATCHLEVEL__ != 1
-#error "HeltecMeshPocketV2Power requires GCC 12.3.1."
-#endif
-
-#if !defined(__cplusplus) || __cplusplus < 201703L
-#error "HeltecMeshPocketV2Power requires C++17 or later."
+#if !defined(__cplusplus) || __cplusplus < 201103L
+#error "HeltecMeshPocketV2Power requires C++11 or later."
 #endif
 
 #if !defined(ARDUINO_ARCH_NRF52) || !defined(NRF52840_XXAA) || \
@@ -32,9 +26,10 @@
 #endif
 
 #include <Arduino.h>
+// Both adapters compile in every build. Discover Wire before its USB dependency.
+#include <Wire.h>
 
-// A precompiled package without source files must expose the core's USB
-// dependency to PlatformIO LDF, including for HLT331-only UART consumers.
+// Expose the nRF52 USB dependency to PlatformIO LDF.
 #if defined(USE_TINYUSB)
 #include <Adafruit_TinyUSB.h>
 #endif

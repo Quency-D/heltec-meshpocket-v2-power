@@ -1,10 +1,13 @@
 #ifndef HLT331_SERIAL_H
 #define HLT331_SERIAL_H
-
 #include <HeltecMeshPocketV2PowerTarget.h>
 
+#if defined(HMP_BUILD_CORE)
+class HardwareSerial;
+#else
 #include <Arduino.h>
 #include <HardwareSerial.h>
+#endif
 #include <stddef.h>
 #include <stdint.h>
 
@@ -15,7 +18,7 @@ public:
   static const uint8_t FRAME_HEADER_1 = 0x5A;
   static const uint8_t DATA_LENGTH = 13;
 
-  enum Error {
+  enum Error : uint8_t {
     ERROR_NONE = 0,
     ERROR_NOT_BEGUN,
     ERROR_INVALID_ARGUMENT,
@@ -91,6 +94,9 @@ public:
   };
 
   HLT331Serial();
+  ~HLT331Serial();
+  HLT331Serial(const HLT331Serial &other);
+  HLT331Serial &operator=(const HLT331Serial &other);
 
   bool begin(HardwareSerial &serial, int rxPin, int txPin,
              uint32_t baud = DEFAULT_BAUD);
@@ -122,38 +128,19 @@ public:
   static const char *fastChargeName(uint8_t fastCharge);
 
 private:
-  enum ParserState {
-    STATE_HEADER_0 = 0,
-    STATE_HEADER_1,
-    STATE_LENGTH,
-    STATE_DATA,
-    STATE_CRC
-  };
-
-  static uint8_t crc8MaximUpdate(uint8_t crc, uint8_t data);
-  static uint16_t littleEndianWord(uint8_t low, uint8_t high);
-
-  void resetParser();
-  void parseData();
+  struct State;
+  State &state();
+  const State &state() const;
   void setError(Error error);
-
-  HardwareSerial *_serial;
-  int _rxPin;
-  int _txPin;
-  int _io1InterruptPin;
-  int _io2WorkPin;
-  int _csaPin;
-  uint32_t _baud;
-  bool _begun;
-  ParserState _parserState;
-  uint8_t _frameLen;
-  uint8_t _dataIndex;
-  uint8_t _data[DATA_LENGTH];
-  Status _status;
-  Error _lastError;
-  volatile bool _io1Pending;
-  volatile uint32_t _io1PulseCount;
-  volatile uint32_t _lastIo1PulseMs;
+  alignas(8) unsigned char storage_[112];
 };
+
+static_assert(sizeof(bool) == 1 && alignof(HLT331Serial::Status) == 4 &&
+              sizeof(HLT331Serial::Status) == 76 &&
+              offsetof(HLT331Serial::Status, batteryMv) == 14 &&
+              offsetof(HLT331Serial::Status, raw) == 24 &&
+              offsetof(HLT331Serial::Status, goodFrames) == 40 &&
+              offsetof(HLT331Serial::Status, io1PulseCount) == 64 &&
+              offsetof(HLT331Serial::Status, error) == 75, "Unsupported HLT331 status layout");
 
 #endif

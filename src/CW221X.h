@@ -1,13 +1,19 @@
 #ifndef HELTEC_MESHPOCKET_V2_POWER_PUBLIC_CW221X_H
 #define HELTEC_MESHPOCKET_V2_POWER_PUBLIC_CW221X_H
 
+#if defined(HMP_BUILD_CORE)
+class TwoWire;
+extern TwoWire Wire;
+#else
 #include <HeltecMeshPocketV2PowerTarget.h>
 #include <Wire.h>
+#endif
+#include <stddef.h>
 #include <stdint.h>
 
 class CW221X {
 public:
-  enum Error {
+  enum Error : uint8_t {
     ERROR_NONE = 0,
     ERROR_NOT_BEGUN = 1,
     ERROR_I2C = 2,
@@ -44,4 +50,7 @@ private:
   alignas(8) unsigned char storage_[128];
 };
 
+static_assert(sizeof(bool) == 1 && alignof(CW221X::Status) == 2 &&
+              sizeof(CW221X::Status) == 10 && offsetof(CW221X::Status, voltageMv) == 4 &&
+              offsetof(CW221X::Status, profile) == 8, "Unsupported gauge status layout");
 #endif

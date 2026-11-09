@@ -1,0 +1,13 @@
+{
+  "name": "HeltecMeshPocketV2Power",
+  "version": "0.2.0",
+  "description": "Battery and power status support for Heltec Mesh Pocket V2.",
+  "authors": [
+    {"name": "Cellwise"},
+    {"name": "Quency-D", "maintainer": true}
+  ],
+  "repository": {"type": "git", "url": "https://github.com/Quency-D/heltec-meshpocket-v2-power.git"},
+  "frameworks": ["arduino"],
+  "platforms": ["nordicnrf52"],
+  "build": {"flags": ["-Lsrc/cortex-m4", "-lHeltecMeshPocketV2PowerCore"]}
+}
